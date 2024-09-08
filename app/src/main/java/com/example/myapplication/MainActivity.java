@@ -9,12 +9,17 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.Firebase;
+import com.google.firebase.auth.FirebaseAuth;
+
 
 public class MainActivity extends AppCompatActivity {
 
     EditText etEmail, etPassword;
     Button btnLogin;
     TextView tvSignUp;
+    FirebaseAuth fAuth;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
         tvSignUp = findViewById(R.id.tvSignUp);
+        fAuth = fAuth.getAccessToken(); // changes to be done
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
