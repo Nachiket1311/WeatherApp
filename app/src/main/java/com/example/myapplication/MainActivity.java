@@ -1,7 +1,4 @@
 package com.example.myapplication;
-
-import static androidx.core.content.ContextCompat.startActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -12,7 +9,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.myapplication.R;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -44,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
                         // Login successful, redirect to next activity
                         Toast.makeText(MainActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(MainActivity.this, MainActivity.class);
-//                        startActivity(intent);
+                        startActivity(intent);
                     } else {
                         // Login failed
                         Toast.makeText(MainActivity.this, "Invalid credentials", Toast.LENGTH_SHORT).show();
