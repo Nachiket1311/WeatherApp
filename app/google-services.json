@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "899626976402",
+    "firebase_url": "https://weatherapp-mad-project-default-rtdb.firebaseio.com",
+    "project_id": "weatherapp-mad-project",
+    "storage_bucket": "weatherapp-mad-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:899626976402:android:d3627b2293da79a6e3d24b",
+        "android_client_info": {
+          "package_name": "weatherapp.mad.project"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "899626976402-jla6bolqtvk8j2kchad30jqpsjiklejo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_IZgEnBfsZSUEy4JuIANthquIqnH8x3g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "899626976402-jla6bolqtvk8j2kchad30jqpsjiklejo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
