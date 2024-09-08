@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
                         // Login successful, redirect to next activity
                         Toast.makeText(MainActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(MainActivity.this, MainActivity.class);
-                        startActivity(intent);
+//                        startActivity(intent);
                     } else {
                         // Login failed
                         Toast.makeText(MainActivity.this, "Invalid credentials", Toast.LENGTH_SHORT).show();
