@@ -9,10 +9,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 
 
+/** @noinspection ALL*/
 public class MainActivity extends AppCompatActivity {
 
     EditText etEmail, etPassword;
