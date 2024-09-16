@@ -21,4 +21,7 @@ public class HomeActivity extends AppCompatActivity {
             return insets;
         });
     }
+
+    public static class SignUpActivity {
+    }
 }
