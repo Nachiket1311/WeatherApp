@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:899626976402:android:d3627b2293da79a6e3d24b",
         "android_client_info": {
-          "package_name": "weatherapp.mad.project"
+          "package_name": "com.example.myapplication"
         }
       },
       "oauth_client": [
