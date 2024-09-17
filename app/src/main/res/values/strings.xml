@@ -10,4 +10,11 @@
     <string name="confirm_password_hint">Re-enter Password</string>
     <string name="signup_button">Signup</string>
     <string name="already_have_account">Already have an account? Sign In</string>
+        <string name="open_drawer">Open Drawer</string>
+        <string name="close_drawer">Close Drawer</string>
+        <string name="home">Home</string>
+        <string name="profile">Profile</string>
+        <string name="settings">Settings</string>
+
+
 </resources>
