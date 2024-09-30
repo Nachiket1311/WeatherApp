@@ -1,14 +1,14 @@
 package com.example.myapplication;
 
-import static com.example.myapplication.R.*;
-
 import android.annotation.SuppressLint;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
+import android.widget.MediaController;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,15 +24,35 @@ public class HomeActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle toggle;
     private NavigationView navigationView;
-    RelativeLayout rl;
-    @SuppressLint("ResourceType")
+    private VideoView videoView;
+
+    @SuppressLint({"ResourceType", "WrongViewCast"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        rl = findViewById(R.id.homebackground);
-        int bg = raw.clear_afternoon;
-        rl.setBackgroundResource(bg);
+
+        // Initialize VideoView AFTER setContentView
+        videoView = findViewById(R.id.background_image);
+
+        // Check if the VideoView exists in the layout
+        Uri videoUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.clear_night);
+        videoView.setVideoURI(videoUri);
+
+        // Add an error listener to catch any issues with playback
+        videoView.setOnErrorListener((mediaPlayer, what, extra) -> {
+            Toast.makeText(HomeActivity.this, "Error playing video!", Toast.LENGTH_SHORT).show();
+            return true; // Return true if error is handled
+        });
+
+        // Start the video automatically when it's ready
+        videoView.setOnPreparedListener(mediaPlayer -> {
+            mediaPlayer.setLooping(true); // Optional: loop the video if needed
+            videoView.start();
+        });
+
+
+
         // Toolbar setup
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
