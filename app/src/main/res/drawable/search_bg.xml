@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Background color -->
+    <solid android:color="#FFFFFF"/> <!-- White background color -->
+
+    <!-- Rounded corners -->
+    <corners android:radius="24dp"/> <!-- Rounded corners, adjust as needed -->
+
+    <!-- Border (stroke) -->
+    <stroke
+        android:width="2dp"
+        android:color="#BDBDBD"/> <!-- Light gray border -->
+
+    <!-- Padding inside the search bar (optional) -->
+    <padding
+        android:left="12dp"
+        android:top="8dp"
+        android:right="12dp"
+        android:bottom="8dp"/>
+
+</shape>
