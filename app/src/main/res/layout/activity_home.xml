@@ -13,16 +13,6 @@
         android:layout_height="match_parent"
         android:id="@+id/homebackground">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:titleTextColor="@color/black"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Dark" />
-
-        <!-- Main content (Home page content) -->
-
-
         <!-- Background Image -->
         <VideoView
             android:id="@+id/background_image"
@@ -32,6 +22,19 @@
             android:layout_centerInParent="true"
             android:scaleType="fitXY"
             android:layout_alignParentBottom="true" />
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:titleTextColor="@android:color/white"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Dark" />
+
+
+        <!-- Main content (Home page content) -->
+
+
+
 
 
 

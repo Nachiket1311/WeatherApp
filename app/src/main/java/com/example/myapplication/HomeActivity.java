@@ -56,6 +56,7 @@ public class HomeActivity extends AppCompatActivity {
         // Toolbar setup
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("");
 
         // Drawer layout and toggle setup
@@ -63,6 +64,7 @@ public class HomeActivity extends AppCompatActivity {
         toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_drawer, R.string.close_drawer);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
+
 
         // Navigation view setup
         navigationView = findViewById(R.id.nav_view);

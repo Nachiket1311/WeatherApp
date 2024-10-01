@@ -31,6 +31,11 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
+android {
+    defaultConfig {
+        vectorDrawables.useSupportLibrary = true
+    }
+}
 
 dependencies {
     implementation(libs.material)
