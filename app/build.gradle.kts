@@ -51,4 +51,6 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
     implementation(libs.play.services.auth)
+    implementation ("com.google.android.gms:play-services-location:21.3.0")
+
 }
