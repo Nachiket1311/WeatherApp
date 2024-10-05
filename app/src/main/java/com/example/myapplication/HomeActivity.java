@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -8,7 +9,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
-import android.widget.MediaController;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -93,11 +94,19 @@ public class HomeActivity extends AppCompatActivity {
                 int id = item.getItemId();
 
                 if (id == R.id.nav_home) {
+                    Intent i1 = new Intent(HomeActivity.this, HomeActivity.class);
+                    startActivity(i1);
                     Toast.makeText(HomeActivity.this, "Home clicked", Toast.LENGTH_SHORT).show();
-                } else if (id == R.id.nav_profile) {
+                } else if (id == R.id.nav_maps) {
+                    Intent i2 = new Intent(HomeActivity.this, Maps.class);
+                    startActivity(i2);
                     Toast.makeText(HomeActivity.this, "Profile clicked", Toast.LENGTH_SHORT).show();
-                } else if (id == R.id.nav_settings) {
+                } else if (id == R.id.nav_chats) {
                     Toast.makeText(HomeActivity.this, "Settings clicked", Toast.LENGTH_SHORT).show();
+                }else if (id == R.id.Logout) {
+                    Intent i3 =new Intent(HomeActivity.this, MainActivity.class);
+                    startActivity(i3);
+                    Toast.makeText(HomeActivity.this, "Logout successfully", Toast.LENGTH_SHORT).show();
                 }
 
                 // Close drawer after item click
@@ -106,6 +115,8 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
     }
+
+
 
     @Override
     public void onBackPressed() {

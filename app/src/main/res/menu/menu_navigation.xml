@@ -5,10 +5,13 @@
         android:title="Home" />
 
     <item
-        android:id="@+id/nav_profile"
-        android:title="Profile" />
+        android:id="@+id/nav_maps"
+        android:title="Maps" />
 
     <item
-        android:id="@+id/nav_settings"
-        android:title="Settings" />
+        android:id="@+id/nav_chats"
+        android:title="News and Chats" />
+    <item
+        android:id="@+id/Logout"
+        android:title="Log Out" />
 </menu>
