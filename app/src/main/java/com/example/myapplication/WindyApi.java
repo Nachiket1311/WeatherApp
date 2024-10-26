@@ -3,6 +3,7 @@ package com.example.myapplication;
 import java.util.List;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
 
 // Define the structure of the request body
@@ -29,4 +30,7 @@ class WeatherRequest {
 public interface WindyApi {
     @POST("api/point-forecast/v2")
     Call<WeatherResponse> getWeather(@Body WeatherRequest requestBody);
+
+    @GET("/path_to_endpoint?parameters") // Specify the API path here
+    Call<Object> getWindyData();
 }

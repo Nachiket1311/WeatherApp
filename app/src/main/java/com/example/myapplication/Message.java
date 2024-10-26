@@ -1,30 +1,29 @@
 package com.example.myapplication;
-
 public class Message {
     private String username;
-    private String message;
-    private long timestamp;
+    private String messageText;
+    private String messageId; // Unique message ID for each message
+    private String replyTo;  // ID of the message this message is replying to (optional)
 
-    public Message() {
-        // Default constructor required for calls to DataSnapshot.getValue(Message.class)
-    }
+    public Message() {}
 
-    public Message(String username, String message) {
+    public Message(String username, String messageText, String messageId, String replyTo) {
         this.username = username;
-        this.message = message;
-        this.timestamp = System.currentTimeMillis();
+        this.messageText = messageText;
+        this.messageId = messageId;
+        this.replyTo = replyTo;
     }
 
     // Getters and setters
-    public String getUsername() {
-        return username;
-    }
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
 
-    public String getMessage() {
-        return message;
-    }
+    public String getMessageText() { return messageText; }
+    public void setMessageText(String messageText) { this.messageText = messageText; }
 
-    public long getTimestamp() {
-        return timestamp;
-    }
+    public String getMessageId() { return messageId; }
+    public void setMessageId(String messageId) { this.messageId = messageId; }
+
+    public String getReplyTo() { return replyTo; }
+    public void setReplyTo(String replyTo) { this.replyTo = replyTo; }
 }
