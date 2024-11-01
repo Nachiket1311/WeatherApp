@@ -4,16 +4,15 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Location;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
-import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
+import java.util.Calendar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -26,43 +25,129 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.android.material.navigation.NavigationView;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Arrays;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class HomeActivity extends AppCompatActivity {
 
     private DrawerLayout drawerLayout;
-    private ActionBarDrawerToggle toggle;
-    private NavigationView navigationView;
     private VideoView videoView;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1000;
-    private double userLatitude = 50.4; // Default values
-    private double userLongitude = 14.3; // Default values
 
-    @SuppressLint({"ResourceType", "WrongViewCast", "MissingInflatedId"})
+    // Weather API Key (IMPORTANT: Replace with your actual API key)
+    private static final String API_KEY = "e454a2b324237efbd47e83a16f3c4eae";
+
+    // UI Components
+    private TextView cityName;
+    private EditText searchbar;
+    private TextView weatherInfo;
+    private ExecutorService executorService;
+    private TextView feelsLikeText;
+    private TextView windSpeedText;
+    private TextView airPressureText;
+    private TextView visibilityText;
+    private TextView uvIndexText; // Assuming you have UV data from another API or source
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        // Initialize VideoView
-        videoView = findViewById(R.id.background_image);
+        // Initialize ExecutorService
+        executorService = Executors.newSingleThreadExecutor();
 
+        // Initialize UI elements
+        initializeUIComponents();
+
+        // Setup Navigation and Toolbar
+        setupNavigationAndToolbar();
+
+        // Check and request location permissions
+        checkLocationPermissions();
+    }
+
+    @SuppressLint("WrongViewCast")
+    private void initializeUIComponents() {
+        videoView = findViewById(R.id.background_image);
+        cityName = findViewById(R.id.city_name);
+        weatherInfo = findViewById(R.id.weather);
+        searchbar = findViewById(R.id.search_bar);
+        Button searchButton = findViewById(R.id.search_button);
+        feelsLikeText = findViewById(R.id.feels_like);
+        windSpeedText = findViewById(R.id.wind_speed);
+        airPressureText = findViewById(R.id.air_pressure);
+        visibilityText = findViewById(R.id.visibility);
+        uvIndexText = findViewById(R.id.uv_index); // If you have UV data available
         // Initialize the FusedLocationProviderClient
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
-        // Request location permission if not granted
+        // Set up search button listener
+
+        searchButton.setOnClickListener(view -> {
+            String city = searchbar.getText().toString();
+            if (!city.isEmpty()) {
+                String url = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + API_KEY + "&units=metric";
+                cityName.setText(city);
+                fetchWeather(url);
+            } else {
+                Toast.makeText(HomeActivity.this, "Enter a city name", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void setupNavigationAndToolbar() {
+        // Toolbar setup
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("");
+
+        // Drawer layout and toggle setup
+        drawerLayout = findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_drawer, R.string.close_drawer);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
+        // Navigation view setup
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+            Intent intent = null;
+
+            if (id == R.id.nav_home) {
+                Toast.makeText(HomeActivity.this, "You are already on Home", Toast.LENGTH_SHORT).show();
+            } else if (id == R.id.nav_maps) {
+                intent = new Intent(HomeActivity.this, Maps.class);
+            } else if (id == R.id.nav_chats) {
+                intent = new Intent(HomeActivity.this, Chats.class);
+            } else if (id == R.id.Logout) {
+                intent = new Intent(HomeActivity.this, MainActivity.class);
+                Toast.makeText(HomeActivity.this, "Logout successful", Toast.LENGTH_SHORT).show();
+            }
+
+            // Close drawer and start activity if intent is set
+            drawerLayout.closeDrawer(GravityCompat.START);
+            if (intent != null) {
+                startActivity(intent);
+            }
+            return true;
+        });
+    }
+
+    private void checkLocationPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
@@ -72,176 +157,144 @@ public class HomeActivity extends AppCompatActivity {
             // Fetch the location
             fetchLocation();
         }
+    }
 
-        // Toolbar setup
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("");
-
-        // Drawer layout and toggle setup
-        drawerLayout = findViewById(R.id.drawer_layout);
-        toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_drawer, R.string.close_drawer);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
-
-        // Navigation view setup
-        navigationView = findViewById(R.id.nav_view);
-
-        // Get the header view from the navigation view
-        View headerView = navigationView.getHeaderView(0);
-        TextView tvHeaderName = headerView.findViewById(R.id.tvHeaderName);
-        TextView tvHeaderEmail = headerView.findViewById(R.id.tvHeaderEmail);
-
-        // Get Firebase user info
-        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-
-        if (currentUser != null) {
-            String email = currentUser.getEmail();
-            String displayName = currentUser.getDisplayName();
-
-            // Set the header text with user info
-            tvHeaderName.setText(displayName != null ? displayName : "No Name");
-            tvHeaderEmail.setText(email);
-        }
-
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int id = item.getItemId();
-
-                if (id == R.id.nav_home) {
-                    drawerLayout.closeDrawer(GravityCompat.START);
-                    Toast.makeText(HomeActivity.this, "You are already on Home", Toast.LENGTH_SHORT).show();
-                } else if (id == R.id.nav_maps) {
-                    Intent i2 = new Intent(HomeActivity.this, Maps.class);
-                    startActivity(i2);
-                    Toast.makeText(HomeActivity.this, "Maps clicked", Toast.LENGTH_SHORT).show();
-                } else if (id == R.id.nav_chats) {
-                    Toast.makeText(HomeActivity.this, "Chats clicked", Toast.LENGTH_SHORT).show();
-                    Intent i4 = new Intent(HomeActivity.this, Chats.class);
-                    startActivity(i4);
-                } else if (id == R.id.Logout) {
-                    Intent i3 = new Intent(HomeActivity.this, MainActivity.class);
-                    startActivity(i3);
-                    Toast.makeText(HomeActivity.this, "Logout successfully", Toast.LENGTH_SHORT).show();
-                }
-
-                // Close drawer after item click
-                drawerLayout.closeDrawer(GravityCompat.START);
-                return true;
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                fetchLocation();
+            } else {
+                Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+
+    // Function to fetch weather data using ExecutorService
+    private void fetchWeather(String urlString) {
+        executorService.execute(() -> {
+            String result = fetchWeatherData(urlString);
+            runOnUiThread(() -> updateWeatherInfo(result));
         });
     }
 
+    // Fetching weather data in a background thread
+    private String fetchWeatherData(String urlString) {
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.connect();
+
+            try (InputStream inputStream = urlConnection.getInputStream();
+                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+
+                StringBuilder result = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    result.append(line);
+                }
+                return result.toString();
+            }
+        } catch (IOException e) {
+            Log.e("HomeActivity", "Error fetching weather data", e);
+            return null;
+        }
+    }
+
+    // Update UI after fetching weather data
+    @SuppressLint({"SetTextI18n", "SetTextI18n"})
+    private void updateWeatherInfo(String result) {
+        try {
+            if (result != null) {
+                JSONObject jsonObject = new JSONObject(result);
+                JSONObject mainObj = jsonObject.getJSONObject("main");
+                String weatherStatus = jsonObject.getJSONArray("weather").getJSONObject(0).getString("main");
+
+                Log.d("WeatherStatus", "Current weather status: " + weatherStatus);
+
+
+                // Extract specific weather details
+                double temp = mainObj.getDouble("temp");
+                double feelsLike = mainObj.getDouble("feels_like");
+                int humidity = mainObj.getInt("humidity");
+                double windSpeed = jsonObject.getJSONObject("wind").getDouble("speed");
+                double airPressure = mainObj.getDouble("pressure");
+                double visibility = jsonObject.getDouble("visibility") / 1000; // Convert to kilometers
+
+                // Update UI elements
+                cityName.setText(jsonObject.getString("name")); // Set city name
+                weatherInfo.setText(String.format("Temperature: %.1f°C\nHumidity: %d%%", temp, humidity));
+                feelsLikeText.setText(String.format("Feels Like: %.1f°C", feelsLike));
+                windSpeedText.setText(String.format("Wind Speed: %.1f m/s", windSpeed));
+                airPressureText.setText(String.format("Pressure: %.1f hPa", airPressure));
+                visibilityText.setText(String.format("Visibility: %.1f km", visibility));
+
+                // UV Index - Assuming you have a way to fetch this data
+                // Uncomment and update if you have UV data available
+                // double uvIndex = ...; // Fetch UV index from another API or source
+                // uvIndexText.setText(String.format("UV Index: %.1f", uvIndex));
+
+                setVideoBasedOnWeather(weatherStatus.toLowerCase());
+            } else {
+                weatherInfo.setText("Weather data unavailable");
+            }
+        } catch (JSONException e) {
+            Log.e("HomeActivity", "Error parsing weather data", e);
+            weatherInfo.setText("Error fetching weather");
+        }
+    }
     // Function to fetch user's current location
     @SuppressLint("MissingPermission")
     private void fetchLocation() {
-        fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
-            @Override
-            public void onComplete(@NonNull Task<Location> task) {
-                if (task.isSuccessful() && task.getResult() != null) {
-                    Location location = task.getResult();
-                    userLatitude = location.getLatitude();
-                    userLongitude = location.getLongitude();
-
-                    // After fetching the location, make the weather API call
-                    fetchWeatherStatus();
-                } else {
-                    userLatitude = 50.4;  // Default values
-                    userLongitude = 14.3; // Default values
-                    Toast.makeText(HomeActivity.this, "Unable to fetch current location, using default coordinates", Toast.LENGTH_SHORT).show();
-                    fetchWeatherStatus(); // Proceed with the default coordinates
-                }
-            }
-        });
-    }
-
-    private void fetchWeatherStatus() {
-        WindyApi apiService = RetrofitInstance.getRetrofitInstance().create(WindyApi.class);
-
-        WeatherRequest requestBody = new WeatherRequest(
-                userLatitude,  // Latitude value
-                userLongitude, // Longitude value
-                "gfs",  // Model (e.g., GFS global model)
-                Arrays.asList("wind", "dewpoint", "rh", "pressure"),  // List of parameters
-                Arrays.asList("surface", "800h", "300h"),  // Levels
-                "r1SaZh5rymWwOLRlTdlprY0aX7H3eoZj"  // Your API key
-        );
-        Call<WeatherResponse> call = apiService.getWeather(requestBody);
-        call.enqueue(new Callback<WeatherResponse>() {
-            @Override
-            public void onResponse(Call<WeatherResponse> call, Response<WeatherResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    // Handle successful response
-                    WeatherResponse weatherResponse = response.body();
-                    Log.d("Weather API", "Raw Response: " + response.body().toString());
-
-                    // Log the weather data to verify it is correct
-                    Log.d("Weather API", "Weather Response: " + weatherResponse.toString());
-
-                    float windSpeed = weatherResponse.getWindSpeedMagnitude();
-                    float temperature = weatherResponse.getTemperature();
-                    float precipitation = weatherResponse.getPrecipitation();
-                    float cloudStat = weatherResponse.getHighCloudCover();
-
-                    // Log values for debugging
-                    Log.d("Weather API", "Wind Speed: " + windSpeed);
-                    Log.d("Weather API", "Temperature: " + temperature);
-                    Log.d("Weather API", "Precipitation: " + precipitation);
-                    Log.d("Weather API", "Cloud Cover: " + cloudStat);
-
-                    // Proceed with weather status determination
-                    String weatherStatus;
-                    if (precipitation > 0.0) {
-                        weatherStatus = "rain";
-                    } else if (windSpeed > 43.0) {
-                        weatherStatus = "thunderstorms";
-                    } else if (cloudStat >= 70.0) {
-                        weatherStatus = "cloudy";
-                    } else if (cloudStat >= 25.0 && cloudStat < 70.0) {
-                        weatherStatus = "partly_cloudy";
+        fusedLocationProviderClient.getLastLocation()
+                .addOnSuccessListener(this, location -> {
+                    if (location != null) {
+                        // Use the location to fetch weather data
+                        @SuppressLint("DefaultLocale") String url = String.format(
+                                "https://api.openweathermap.org/data/2.5/weather?lat=%f&lon=%f&appid=%s&units=metric",
+                                location.getLatitude(),
+                                location.getLongitude(),
+                                API_KEY
+                        );
+                        fetchWeather(url);
                     } else {
-                        weatherStatus = "default";
+                        Toast.makeText(HomeActivity.this, "Unable to fetch location", Toast.LENGTH_SHORT).show();
                     }
-
-                    setVideoBasedOnWeather(weatherStatus);
-                } else {
-                    // Handle unsuccessful response
-                    try {
-                        String errorResponse = response.errorBody().string();
-                        Log.e("Weather API", "Failed response: " + errorResponse);
-                        Toast.makeText(HomeActivity.this, "Failed to fetch weather: " + errorResponse, Toast.LENGTH_SHORT).show();
-                    } catch (IOException e) {
-                        Log.e("Weather API", "Error reading error response: " + e.getMessage());
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<WeatherResponse> call, Throwable t) {
-                // Handle failure
-                Log.e("Weather API", "API call failed: " + t.getMessage());
-                Toast.makeText(HomeActivity.this, "Failed to fetch weather data", Toast.LENGTH_SHORT).show();
-            }
-        });
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("HomeActivity", "Failed to fetch location", e);
+                    Toast.makeText(HomeActivity.this, "Location retrieval failed", Toast.LENGTH_SHORT).show();
+                });
     }
 
+    // Set video background based on weather condition
     private void setVideoBasedOnWeather(String weatherStatus) {
         int videoResourceId;
+        Calendar calendar = Calendar.getInstance();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY); // Get current hour (0-23)
+
         switch (weatherStatus) {
             case "rain":
                 videoResourceId = R.raw.rain;
                 break;
-            case "thunderstorms":
+            case "thunderstorm":
                 videoResourceId = R.raw.rain_with_thunder;
                 break;
-            case "cloudy":
+            case "clouds":
                 videoResourceId = R.raw.cloudy;
                 break;
-            case "partly_cloudy":
-                videoResourceId = R.raw.partly_cloudy;
+            case "clear":
+                // Determine the time of day and set the appropriate video
+                if (hour >= 5 && hour < 12) { // Morning: 5 AM to 11:59 AM
+                    videoResourceId = R.raw.clear_morning; // Ensure this video exists
+                } else if (hour >= 12 && hour < 17) { // Afternoon: 12 PM to 4:59 PM
+                    videoResourceId = R.raw.clear_afternoon; // Ensure this video exists
+                } else if (hour >= 17 && hour < 21) { // Evening: 5 PM to 8:59 PM
+                    videoResourceId = R.raw.clear_evening; // Ensure this video exists
+                } else { // Night: 9 PM to 4:59 AM
+                    videoResourceId = R.raw.clear_night; // Ensure this video exists
+                }
                 break;
             default:
                 videoResourceId = R.raw.default_video;
@@ -253,10 +306,10 @@ public class HomeActivity extends AppCompatActivity {
         videoView.start();
     }
 
+
     @Override
     protected void onResume() {
         super.onResume();
-        // Resume video playback
         if (videoView != null) {
             videoView.start();
         }
@@ -265,31 +318,26 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        // Pause video playback
         if (videoView != null) {
             videoView.pause();
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                fetchLocation(); // Fetch location if permission granted
-            } else {
-                Toast.makeText(this, "Location permission is required to fetch weather data.", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    @Override
     public void onBackPressed() {
-        // Handle back press
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Shutdown executor service to prevent memory leaks
+        if (executorService != null) {
+            executorService.shutdown();
         }
     }
 }

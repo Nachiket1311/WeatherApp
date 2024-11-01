@@ -57,7 +57,13 @@
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             tools:ignore="TouchTargetSizeCheck" />
-
+        <Button
+            android:id="@+id/search_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Search"
+            android:layout_below="@id/search_bar"
+            android:layout_centerHorizontal="true"/>
         <!-- City Name Display -->
         <TextView
             android:id="@+id/city_name"
@@ -67,10 +73,16 @@
             android:textColor="@android:color/black"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:layout_below="@id/search_bar"
+            android:layout_below="@id/search_button"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="16dp" />
-
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/weather"
+            android:layout_below="@id/city_name"
+            android:layout_centerHorizontal="true"
+            android:layout_above="@id/temperature"/>
         <!-- Temperature Display -->
         <TextView
             android:id="@+id/temperature"
@@ -109,7 +121,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="20dp"
+                android:padding="5dp"
                 android:layout_marginStart="10dp"
                 >
 
@@ -129,6 +141,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0 Very Weak"
+                    android:id="@+id/uv_index"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -138,7 +151,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="20dp">
+                android:padding="5dp">
 
                 <ImageView
                     android:layout_width="40dp"
@@ -156,6 +169,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="30°"
+                    android:id="@+id/feels_like"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -165,7 +179,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="20dp"
+                android:padding="5dp"
                 android:layout_marginEnd="10dp">
 
                 <ImageView
@@ -184,6 +198,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="80%"
+                    android:id="@+id/Humidity"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -193,7 +208,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="20dp"
+                android:padding="5dp"
                 android:layout_marginStart="10dp">
 
                 <ImageView
@@ -212,6 +227,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="10 mph"
+                    android:id="@+id/wind_speed"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -221,7 +237,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="20dp">
+                android:padding="5dp">
 
                 <ImageView
                     android:layout_width="40dp"
@@ -239,6 +255,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="1009 hPa"
+                    android:id="@+id/air_pressure"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -248,7 +265,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="20dp"
+                android:padding="5dp"
                 android:layout_marginEnd="10dp">
 
                 <ImageView
@@ -267,6 +284,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="4 Km"
+                    android:id="@+id/visibility"
                     android:textSize="12sp" />
             </LinearLayout>
 

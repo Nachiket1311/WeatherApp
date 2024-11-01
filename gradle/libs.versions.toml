@@ -13,6 +13,7 @@ firebaseFirestore = "25.1.0"
 gridlayout = "1.0.0"
 firebaseMessaging = "24.0.2"
 firebaseDatabase = "21.0.0"
+playServicesLocation = "21.3.0"
 
 [libraries]
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
@@ -29,6 +30,7 @@ firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore
 gridlayout = { group = "androidx.gridlayout", name = "gridlayout", version.ref = "gridlayout" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
+play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

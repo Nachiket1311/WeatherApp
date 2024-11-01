@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
+        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -31,9 +32,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity> <!-- Other activities -->
-        <activity
-            android:name=".chatsandnotification"
-            android:exported="false" />
+
         <activity
             android:name=".Maps"
             android:exported="false" />
@@ -43,13 +42,7 @@
         <activity
             android:name=".HomeActivity"
             android:exported="false" /> <!-- Firebase Messaging Service -->
-        <service
-            android:name=".MyFirebaseMessagingService"
-            android:exported="true"> <!-- This service must be exported to receive Firebase messages -->
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service> <!-- Metadata for App Actions or any other configuration -->
+
         <meta-data
             android:name="com.google.android.actions"
             android:resource="@menu/menu_navigation" />

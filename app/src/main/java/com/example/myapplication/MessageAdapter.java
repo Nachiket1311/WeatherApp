@@ -30,7 +30,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
         if (message != null) {
             title.setText(message.getUsername());
-            subtitle.setText(message.getMessage());
+            subtitle.setText(message.getMessageText());
         }
 
         return convertView;
