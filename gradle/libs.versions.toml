@@ -1,6 +1,7 @@
 [versions]
 agp = "8.5.2"
 firebaseBom = "33.2.0"
+firebaseMessagingVersion = "23.0.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
@@ -14,10 +15,12 @@ gridlayout = "1.0.0"
 firebaseMessaging = "24.0.2"
 firebaseDatabase = "21.0.0"
 playServicesLocation = "21.3.0"
+googleGmsGoogleServices = "4.4.2"
 
 [libraries]
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-messaging-v2300 = { module = "com.google.firebase:firebase-messaging", version.ref = "firebaseMessagingVersion" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -34,4 +37,5 @@ play-services-location = { module = "com.google.android.gms:play-services-locati
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
 

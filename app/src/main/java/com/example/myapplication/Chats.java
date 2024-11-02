@@ -3,8 +3,11 @@ package com.example.myapplication;
 import static android.content.ContentValues.TAG;
 
 import android.annotation.SuppressLint;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -15,16 +18,22 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.os.Build;
+import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -61,6 +70,9 @@ public class Chats extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chats);
+        createNotificationChannel();
+
+
 
         // Initialize Firebase Auth and Database reference
         auth = FirebaseAuth.getInstance();
@@ -146,6 +158,30 @@ public class Chats extends AppCompatActivity {
             }
         });
     }
+    private void createNotificationChannel() {
+        // Check if the device is running on Android Oreo or higher
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Define the channel ID, name, and description
+            String channelId = "chateaubriands";
+            String channelName = "Chats";
+            String channelDescription = "Channel for My Notifications";
+            int importance = NotificationManager.IMPORTANCE_HIGH; // Set the importance level
+
+            // Create the NotificationChannel
+            NotificationChannel channel = new NotificationChannel(channelId, channelName, importance);
+            channel.setDescription(channelDescription);
+
+            // Optional: Set additional channel properties
+            channel.enableLights(true); // Enable lights
+            channel.enableVibration(true); // Enable vibration
+            channel.setVibrationPattern(new long[]{0, 1000, 500, 1000}); // Vibration pattern
+            channel.setShowBadge(true); // Show badge on app icon
+
+            // Register the channel with the system
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
 
     private void sendMessage() {
         String messageText = messageInput.getText().toString().trim();
@@ -154,12 +190,21 @@ public class Chats extends AppCompatActivity {
             long timestamp = System.currentTimeMillis(); // Get current timestamp
             Message message = new Message(username, messageText, messageId, timestamp); // Include timestamp in Message constructor
 
+            // Log the message being sent for debugging
+            Log.d(TAG, "Sending message: " + messageText);
+
             databaseReference.child(messageId).setValue(message)
                     .addOnSuccessListener(aVoid -> {
                         messageInput.setText(""); // Clear input field
+                        // Send notification to all users
+                        try {
+                            sendNotification("New Message from " + username, messageText);
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error sending notification", e);
+                        }
                     })
                     .addOnFailureListener(e -> {
-                        Log.e("ChatsActivity", "Failed to send message", e);
+                        Log.e(TAG, "Failed to send message", e);
                         Toast.makeText(Chats.this, "Failed to send message", Toast.LENGTH_SHORT).show();
                     });
         } else {
@@ -269,5 +314,31 @@ public class Chats extends AppCompatActivity {
                 Toast.makeText(Chats.this, "Error finding username", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+
+    private void sendNotification(String title, String message) {
+        // Create a notification
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, "chatsandnews")
+                .setSmallIcon(R.drawable.logo) // Ensure this resource exists
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.logo)) // Ensure this resource exists
+                .setContentTitle(title)
+                .setContentText(message)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true); // Dismiss the notification when clicked
+
+        // Create a pending intent to open the app when the notification is clicked
+        Intent intent = new Intent(this, MainActivity.class);
+        // Use FLAG_IMMUTABLE for security reasons
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        notificationBuilder.setContentIntent(pendingIntent);
+
+        // Show the notification
+        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+        if (notificationManager != null) {
+            notificationManager.notify(12345, notificationBuilder.build());
+        } else {
+            Log.e(TAG, "NotificationManager is null");
+        }
     }
 }
