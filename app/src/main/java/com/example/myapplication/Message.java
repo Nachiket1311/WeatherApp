@@ -1,42 +1,34 @@
 package com.example.myapplication;
 public class Message {
-    private String username;
-    private String messageText;
-    private String messageId;
+    private String username; // Username to display
+    private String messageText; // The actual message text
+    private String messageid;
+    private long timestamp; // Timestamp of the message
 
-    // Required empty constructor for Firebase
     public Message() {
+        // Default constructor required for calls to DataSnapshot.getValue(Message.class)
     }
 
-    // Constructor with parameters
-    public Message(String username, String messageText, String messageId) {
+    public Message(String username, String messageText,String messageid, long timestamp) {
         this.username = username;
         this.messageText = messageText;
-        this.messageId = messageId;
+        this.messageid = messageid;
+        this.timestamp = timestamp;
     }
 
-    // Getters and setters
+    // Getters
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public String getMessageid() {
+        return messageid;
     }
-
     public String getMessageText() {
         return messageText;
     }
 
-    public void setMessageText(String messageText) {
-        this.messageText = messageText;
-    }
-
-    public String getMessageId() {
-        return messageId;
-    }
-
-    public void setMessageId(String messageId) {
-        this.messageId = messageId;
+    public long getTimestamp() {
+        return timestamp;
     }
 }

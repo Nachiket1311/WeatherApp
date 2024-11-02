@@ -76,13 +76,7 @@
             android:layout_below="@id/search_button"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="16dp" />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/weather"
-            android:layout_below="@id/city_name"
-            android:layout_centerHorizontal="true"
-            android:layout_above="@id/temperature"/>
+
         <!-- Temperature Display -->
         <TextView
             android:id="@+id/temperature"
@@ -122,7 +116,8 @@
                 android:orientation="vertical"
                 android:gravity="center"
                 android:padding="5dp"
-                android:layout_marginStart="10dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="10dp"
                 >
 
                 <ImageView
@@ -150,8 +145,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:gravity="center"
-                android:padding="5dp">
+                android:gravity="top|center"
+                android:padding="10dp">
 
                 <ImageView
                     android:layout_width="40dp"
@@ -179,8 +174,9 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="5dp"
-                android:layout_marginEnd="10dp">
+                android:padding="10dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp">
 
                 <ImageView
                     android:layout_width="40dp"
@@ -208,8 +204,9 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="5dp"
-                android:layout_marginStart="10dp">
+                android:padding="10dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp">
 
                 <ImageView
                     android:layout_width="40dp"
@@ -237,7 +234,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="5dp">
+                android:padding="10dp">
 
                 <ImageView
                     android:layout_width="40dp"
@@ -265,8 +262,9 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="5dp"
-                android:layout_marginEnd="10dp">
+                android:padding="10dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp">
 
                 <ImageView
                     android:layout_width="40dp"

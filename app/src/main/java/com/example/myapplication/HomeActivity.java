@@ -51,7 +51,7 @@ public class HomeActivity extends AppCompatActivity {
     private static final String API_KEY = "e454a2b324237efbd47e83a16f3c4eae";
 
     // UI Components
-    private TextView cityName;
+    private TextView cityName,HumidityText;
     private EditText searchbar;
     private TextView weatherInfo;
     private ExecutorService executorService;
@@ -83,8 +83,9 @@ public class HomeActivity extends AppCompatActivity {
     private void initializeUIComponents() {
         videoView = findViewById(R.id.background_image);
         cityName = findViewById(R.id.city_name);
-        weatherInfo = findViewById(R.id.weather);
+        weatherInfo = findViewById(R.id.temperature);
         searchbar = findViewById(R.id.search_bar);
+        HumidityText = findViewById(R.id.Humidity);
         Button searchButton = findViewById(R.id.search_button);
         feelsLikeText = findViewById(R.id.feels_like);
         windSpeedText = findViewById(R.id.wind_speed);
@@ -95,7 +96,6 @@ public class HomeActivity extends AppCompatActivity {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
         // Set up search button listener
-
         searchButton.setOnClickListener(view -> {
             String city = searchbar.getText().toString();
             if (!city.isEmpty()) {
@@ -202,6 +202,7 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+
     // Update UI after fetching weather data
     @SuppressLint({"SetTextI18n", "SetTextI18n"})
     private void updateWeatherInfo(String result) {
@@ -211,8 +212,11 @@ public class HomeActivity extends AppCompatActivity {
                 JSONObject mainObj = jsonObject.getJSONObject("main");
                 String weatherStatus = jsonObject.getJSONArray("weather").getJSONObject(0).getString("main");
 
-                Log.d("WeatherStatus", "Current weather status: " + weatherStatus);
+                // Extract cloud percentage
+                int cloudPercentage = jsonObject.getJSONObject("clouds").getInt("all");
 
+                Log.d("WeatherStatus", "Current weather status: " + weatherStatus);
+                Log.d("CloudPercentage", "Current cloud percentage: " + cloudPercentage);
 
                 // Extract specific weather details
                 double temp = mainObj.getDouble("temp");
@@ -222,20 +226,25 @@ public class HomeActivity extends AppCompatActivity {
                 double airPressure = mainObj.getDouble("pressure");
                 double visibility = jsonObject.getDouble("visibility") / 1000; // Convert to kilometers
 
+                // Extract latitude and longitude from the coord object
+                JSONObject coord = jsonObject.getJSONObject("coord");
+                double lat = coord.getDouble("lat");
+                double lon = coord.getDouble("lon");
+
                 // Update UI elements
                 cityName.setText(jsonObject.getString("name")); // Set city name
-                weatherInfo.setText(String.format("Temperature: %.1f°C\nHumidity: %d%%", temp, humidity));
-                feelsLikeText.setText(String.format("Feels Like: %.1f°C", feelsLike));
-                windSpeedText.setText(String.format("Wind Speed: %.1f m/s", windSpeed));
-                airPressureText.setText(String.format("Pressure: %.1f hPa", airPressure));
-                visibilityText.setText(String.format("Visibility: %.1f km", visibility));
+                weatherInfo.setText(String.format("%.1f°C", temp));
+                HumidityText.setText(String.format("%d%%",humidity));
+                feelsLikeText.setText(String.format(" %.1f°C", feelsLike));
+                windSpeedText.setText(String.format(" %.1f m/s", windSpeed));
+                airPressureText.setText(String.format(" %.1f hPa", airPressure));
+                visibilityText.setText(String.format(" %.1f km", visibility));
 
-                // UV Index - Assuming you have a way to fetch this data
-                // Uncomment and update if you have UV data available
-                // double uvIndex = ...; // Fetch UV index from another API or source
-                // uvIndexText.setText(String.format("UV Index: %.1f", uvIndex));
+                // Fetch UV Index using the extracted latitude and longitude
+                fetchUVIndex(lat, lon);
 
-                setVideoBasedOnWeather(weatherStatus.toLowerCase());
+                // Set video based on weather condition and cloud percentage
+                setVideoBasedOnWeather(weatherStatus.toLowerCase(), cloudPercentage);
             } else {
                 weatherInfo.setText("Weather data unavailable");
             }
@@ -244,6 +253,55 @@ public class HomeActivity extends AppCompatActivity {
             weatherInfo.setText("Error fetching weather");
         }
     }
+
+    // Function to fetch UV Index
+    private void fetchUVIndex(double lat, double lon) {
+        String uvUrl = "https://api.openweathermap.org/data/2.5/uvi?lat=" + lat + "&lon=" + lon + "&appid=" + API_KEY;
+        executorService.execute(() -> {
+            String uvResult = fetchUVData(uvUrl);
+            runOnUiThread(() -> updateUVIndex(uvResult));
+        });
+    }
+
+    // Fetching UV Index data in a background thread
+    private String fetchUVData(String uvUrl) {
+        try {
+            URL url = new URL(uvUrl);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.connect();
+
+            try (InputStream inputStream = urlConnection.getInputStream();
+                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+
+                StringBuilder result = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    result.append(line);
+                }
+                return result.toString();
+            }
+        } catch (IOException e) {
+            Log.e("HomeActivity", "Error fetching UV Index data", e);
+            return null;
+        }
+    }
+
+    // Update UV Index UI
+    private void updateUVIndex(String uvResult) {
+        try {
+            if (uvResult != null) {
+                JSONObject uvJsonObject = new JSONObject(uvResult);
+                double uvIndex = uvJsonObject.getDouble("value");
+                uvIndexText.setText(String.format("%1f", uvIndex));
+            } else {
+                uvIndexText.setText("UV Index data unavailable");
+            }
+        } catch (JSONException e) {
+            Log.e("HomeActivity", "Error parsing UV Index data", e);
+            uvIndexText.setText("Error fetching UV Index");
+        }
+    }
+
     // Function to fetch user's current location
     @SuppressLint("MissingPermission")
     private void fetchLocation() {
@@ -269,7 +327,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     // Set video background based on weather condition
-    private void setVideoBasedOnWeather(String weatherStatus) {
+    private void setVideoBasedOnWeather(String weatherStatus, int cloudPercentage) {
         int videoResourceId;
         Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY); // Get current hour (0-23)
@@ -282,7 +340,49 @@ public class HomeActivity extends AppCompatActivity {
                 videoResourceId = R.raw.rain_with_thunder;
                 break;
             case "clouds":
-                videoResourceId = R.raw.cloudy;
+                // Set video based on cloud percentage
+                if (cloudPercentage >= 11 && cloudPercentage <= 25) { // Few clouds
+                    videoResourceId = R.raw.partly_cloudy;
+                } else if (cloudPercentage >= 26 && cloudPercentage <= 50) { // Scattered clouds
+                    videoResourceId = R.raw.partly_cloudy;
+                } else if (cloudPercentage >= 51 && cloudPercentage <= 84) { // Broken clouds
+                    videoResourceId = R.raw.cloudy;
+                } else { // Overcast clouds
+                    videoResourceId = R.raw.cloudy;
+                }
+                break;
+            case "drizzle":
+                videoResourceId = R.raw.rain;
+                break;
+            case "snow":
+                videoResourceId = R.raw.snowfall;
+                break;
+            case "mist":
+                videoResourceId = R.raw.fog_and_mist;
+                break;
+            case "fog":
+                videoResourceId = R.raw.fog_and_mist;
+                break;
+            case "smoke":
+                videoResourceId = R.raw.smoke_and_haze;
+                break;
+            case "haze":
+                videoResourceId = R.raw.smoke_and_haze;
+                break;
+            case "dust ":
+                videoResourceId = R.raw.dust_and_sand;
+                break;
+            case "sand":
+                videoResourceId = R.raw.dust_and_sand;
+                break;
+            case "ash":
+                videoResourceId = R.raw.ash_video;
+                break;
+            case "squall":
+                videoResourceId = R.raw.squall_video;
+                break ;
+            case "tornado":
+                videoResourceId = R.raw.tornado_video;
                 break;
             case "clear":
                 // Determine the time of day and set the appropriate video
@@ -305,7 +405,6 @@ public class HomeActivity extends AppCompatActivity {
         videoView.setOnPreparedListener(mp -> mp.setLooping(true));
         videoView.start();
     }
-
 
     @Override
     protected void onResume() {

@@ -1,5 +1,7 @@
 package com.example.myapplication;
 
+import static android.content.ContentValues.TAG;
+
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,14 +26,18 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 public class Chats extends AppCompatActivity {
@@ -42,10 +49,12 @@ public class Chats extends AppCompatActivity {
     private EditText messageInput;
     private Button sendButton;
     private DatabaseReference databaseReference;
+    private DatabaseReference databaseReference1;
     private MessageAdapter messageAdapter;
     private ArrayList<Message> messages;
     private FirebaseAuth auth;
     private String username;
+    private TextView usernameDisplay; // TextView to display the username
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -57,16 +66,24 @@ public class Chats extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference("messages");
 
-        // Get current user and set username
-        FirebaseUser user = auth.getCurrentUser();
-        if (user != null) {
-            username = user.getDisplayName();
-            if (username == null) {
-                username = "Anonymous";  // Default name if display name is not set
-            }
+        // Initialize UI elements
+        usernameDisplay = findViewById(R.id.username_display); // This must match the ID in your layout
+        messageList = findViewById(R.id.message_list);
+        messageInput = findViewById(R.id.message_input);
+        sendButton = findViewById(R.id.send_button);
+        messages = new ArrayList<>();
+        messageAdapter = new MessageAdapter(this, messages);
+        messageList.setAdapter(messageAdapter);
+
+        String[] loginDetails = retrieveLoginDetails();
+        if (loginDetails != null) {
+            String email = loginDetails[0];
+
+            // Use the email to find the username
+            findUsername(email);
         } else {
-            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
-            finish();  // Close activity if user is not logged in
+            Toast.makeText(this, "Error retrieving login details", Toast.LENGTH_SHORT).show();
+            finish(); // Close activity if login details are not found
             return;
         }
 
@@ -86,7 +103,7 @@ public class Chats extends AppCompatActivity {
 
         // Navigation view setup
         navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(item -> {
+        navigationView.setNavigationItemSelectedListener (item -> {
             int id = item.getItemId();
             if (id == R.id.nav_home) {
                 Intent i4 = new Intent(Chats.this, HomeActivity.class);
@@ -108,33 +125,34 @@ public class Chats extends AppCompatActivity {
             return true;
         });
 
-        // UI elements
-        messageList = findViewById(R.id.message_list);
-        messageInput = findViewById(R.id.message_input);
-        sendButton = findViewById(R.id.send_button);
-        messages = new ArrayList<>();
-        messageAdapter = new MessageAdapter(this, messages);
-        messageList.setAdapter(messageAdapter);
-
         // Load existing messages
         loadMessages();
 
-        // Send message on button click
-        sendButton.setOnClickListener(view -> sendMessage());
-
         // Set long-click listener for deleting messages
-        messageList.setOnItemLongClickListener((AdapterView<?> parent, View view, int position, long id) -> {
+        messageList.setOnItemLongClickListener((AdapterView<?> parent , View view, int position, long id) -> {
             Message selectedMessage = messages.get(position);
             showDeleteConfirmationDialog(selectedMessage);
             return true;
+        });
+
+        // Initially disable the send button
+        sendButton.setEnabled(false);
+
+        // Set click listener for send button
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendMessage();
+            }
         });
     }
 
     private void sendMessage() {
         String messageText = messageInput.getText().toString().trim();
-        if (!messageText.isEmpty()) {
+        if (!messageText.isEmpty()) { // Ensure message is not empty
             String messageId = databaseReference.push().getKey();
-            Message message = new Message(username, messageText, messageId); // Include messageId in Message constructor
+            long timestamp = System.currentTimeMillis(); // Get current timestamp
+            Message message = new Message(username, messageText, messageId, timestamp); // Include timestamp in Message constructor
 
             databaseReference.child(messageId).setValue(message)
                     .addOnSuccessListener(aVoid -> {
@@ -173,6 +191,12 @@ public class Chats extends AppCompatActivity {
     }
 
     private void showDeleteConfirmationDialog(Message message) {
+        // Check if the current user is the sender
+        if (!message.getUsername().equals(username)) {
+            Toast.makeText(this, "You can only delete your own messages.", Toast.LENGTH_SHORT).show();
+            return; // Exit if the user is not the sender
+        }
+
         new AlertDialog.Builder(this)
                 .setTitle("Delete Message")
                 .setMessage("Are you sure you want to delete this message?")
@@ -182,7 +206,7 @@ public class Chats extends AppCompatActivity {
     }
 
     private void deleteMessage(Message message) {
-        databaseReference.child(message.getMessageId()).removeValue()
+        databaseReference.child(message.getMessageid()).removeValue()
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(Chats.this, "Message deleted", Toast.LENGTH_SHORT).show();
                 })
@@ -198,5 +222,52 @@ public class Chats extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    // Method to retrieve login details from file
+    private String[] retrieveLoginDetails() {
+        try {
+            FileInputStream fis = openFileInput("login_details.txt");
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader br = new BufferedReader(isr);
+            String loginDetails = br.readLine();
+            String[] details = loginDetails.split(",");
+            return details;
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    // Method to find the username using the email
+    private void findUsername(String email) {
+        Log.d("ChatsActivity", "Finding username for email: " + email); // Log the email being searched
+        databaseReference1 = FirebaseDatabase.getInstance().getReference("user");
+        databaseReference1.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                        String username = userSnapshot.child("name").getValue(String.class);
+                        Chats.this.username = username; // Store the retrieved username
+                        if (usernameDisplay != null) {
+                            usernameDisplay.setText("Username : " + username); // Display the username
+                        } else {
+                            Log.e("ChatsActivity", "usernameDisplay is null");
+                        }
+                        Toast.makeText(Chats.this, "Username: " + username, Toast.LENGTH_SHORT).show();
+                        sendButton.setEnabled(true); // Enable the send button after username is retrieved
+                    }
+                } else {
+                    Log.d("ChatsActivity", "Username not found for email: " + email); // Log if not found
+                    Toast.makeText(Chats.this, "Username not found", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e("ChatsActivity", "Failed to find username", databaseError.toException());
+                Toast.makeText(Chats.this, "Error finding username", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

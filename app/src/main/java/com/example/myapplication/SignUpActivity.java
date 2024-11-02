@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -16,12 +17,16 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 
 public class SignUpActivity extends AppCompatActivity {
 
     EditText etName, etEmail, etPassword, etConfirmPassword;
     Button btnSignUp;
     FirebaseAuth fAuth;
+    DatabaseReference databaseReference;
     View loadingOverlay;
     TextView tvLogin;
 
@@ -35,12 +40,12 @@ public class SignUpActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
         btnSignUp = findViewById(R.id.btnSignUp);
-        tvLogin = findViewById(R.id.tvLogin);  // Correct TextView ID
+        tvLogin = findViewById(R.id.tvLogin);
         loadingOverlay = findViewById(R.id.loadingOverlay);
 
         fAuth = FirebaseAuth.getInstance();
+        databaseReference = FirebaseDatabase.getInstance().getReference("user");
 
-        // Set up Sign Up button functionality
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -54,47 +59,54 @@ public class SignUpActivity extends AppCompatActivity {
                 } else if (!password.equals(confirmPassword)) {
                     Toast.makeText(SignUpActivity.this, "Passwords do not match", Toast.LENGTH_SHORT).show();
                 } else {
-                    // Show loading overlay and disable input
                     loadingOverlay.setVisibility(View.VISIBLE);
                     disableTouchEvents(true);
 
                     fAuth.createUserWithEmailAndPassword(email, password)
                             .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    loadingOverlay.setVisibility(View.GONE);
-                                    disableTouchEvents(false);
+                        @SuppressLint("RestrictedApi")
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            loadingOverlay.setVisibility(View.GONE);
+                            disableTouchEvents(false);
 
-                                    if (task.isSuccessful()) {
-                                        Toast.makeText(SignUpActivity.this, "Registration Successful", Toast.LENGTH_SHORT).show();
-                                        finish();  // Close the sign-up activity and go back to login
-                                    } else {
-                                        Toast.makeText(SignUpActivity.this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                            if (task.isSuccessful()) {
+                                String userId = fAuth.getCurrentUser ().getUid();
+                                User user = new User(name, email, password);
+
+                                // Store user information in the database
+                                databaseReference.child(userId).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            Toast.makeText(SignUpActivity.this, "Registration Successful", Toast.LENGTH_SHORT). show();
+                                            finish();  // Close the sign-up activity and go back to login
+                                        } else {
+                                            Toast.makeText(SignUpActivity.this, "Failed to save user data: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                        }
                                     }
-                                }
-                            });
+                                });
+                            } else {
+                                Toast.makeText(SignUpActivity.this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
                 }
             }
         });
 
-        // Set up Login TextView click listener to redirect to login page
         tvLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Redirect to Login Activity
                 Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
                 startActivity(intent);
             }
         });
     }
 
-    // Disable or enable touch events to prevent interaction during loading
     private void disableTouchEvents(boolean disable) {
         if (disable) {
-            getWindow().setFlags(
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-            );
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         } else {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         }
