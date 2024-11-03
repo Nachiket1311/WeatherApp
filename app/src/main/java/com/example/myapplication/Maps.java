@@ -70,7 +70,12 @@ public class Maps extends AppCompatActivity {
                     Intent i1 = new Intent(Maps.this, HomeActivity.class);
                     startActivity(i1);
                     Toast.makeText(Maps.this, "Home clicked", Toast.LENGTH_SHORT).show();
-                } else if (id == R.id.nav_maps) {
+                }else if (id == R.id.Recommendations) {
+                    Intent i2 = new Intent(Maps.this, ActivityRecommendationActivity.class);
+                    startActivity(i2);
+                    Toast.makeText(Maps.this, "Recommendations clicked", Toast.LENGTH_SHORT).show();
+                }
+                else if (id == R.id.nav_maps) {
                     Intent i2 = new Intent(Maps.this, Maps.class);
                     startActivity(i2);
                     Toast.makeText(Maps.this, "Profile clicked", Toast.LENGTH_SHORT).show();

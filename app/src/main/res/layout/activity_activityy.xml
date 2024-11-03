@@ -1,33 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:background="#f0f4f7">
+    android:id="@+id/drawer_layout"> <!-- Make sure to add this ID -->
 
-    <!-- Title -->
-    <TextView
-        android:id="@+id/recommendation_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Today's Recommended Activities"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="#333"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:paddingBottom="8dp"/>
-
-    <!-- RecyclerView for Dynamic Activity List -->
-    <RecyclerView
-        android:id="@+id/activity_recycler_view"
+    <!-- Main content layout -->
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/recommendation_title"
-        android:layout_marginTop="8dp"
-        android:clipToPadding="false"
-        android:paddingBottom="16dp"
-        android:layout_marginBottom="16dp"/>
+        android:layout_height="match_parent"
+        android:padding="5dp"
+        android:background="#f0f4f7">
 
-</RelativeLayout>
+        <!-- Toolbar -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#FF6200EE"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/recommendation_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Today's Recommended Activities"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#333"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:paddingBottom="8dp"
+            android:layout_below="@id/toolbar"/>
+
+        <!-- RecyclerView for Dynamic Activity List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/activity_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/recommendation_title"
+            android:layout_marginTop="8dp"
+            android:clipToPadding="false"
+            android:paddingBottom="16dp"
+            android:layout_marginBottom="16dp"/>
+    </RelativeLayout>
+
+    <!-- Navigation View -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        app:headerLayout="@layout/nav_header"
+        app:menu="@menu/menu_navigation" /> <!-- Ensure this menu resource exists -->
+
+</androidx.drawerlayout.widget.DrawerLayout>

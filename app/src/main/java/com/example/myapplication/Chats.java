@@ -19,9 +19,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.os.Build;
-import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -33,7 +31,6 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -46,7 +43,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 
 public class Chats extends AppCompatActivity {
@@ -121,7 +117,12 @@ public class Chats extends AppCompatActivity {
                 Intent i4 = new Intent(Chats.this, HomeActivity.class);
                 startActivity(i4);
                 finish();  // Close this activity
-            } else if (id == R.id.nav_maps) {
+            }else if (id == R.id.Recommendations) {
+                Intent i2 = new Intent(Chats.this, ActivityRecommendationActivity.class);
+                startActivity(i2);
+                finish();
+            }
+            else if (id == R.id.nav_maps) {
                 Intent i2 = new Intent(Chats.this, Maps.class);
                 startActivity(i2);
                 finish();

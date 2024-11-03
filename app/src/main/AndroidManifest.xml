@@ -48,6 +48,9 @@
             android:exported="false" />
         <activity
             android:name=".HomeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ActivityRecommendationActivity"
             android:exported="false" /> <!-- Firebase Messaging Service -->
         <!--
  Set custom default icon. This is used when no icon is set for incoming notification messages.

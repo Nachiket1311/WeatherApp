@@ -129,7 +129,10 @@ public class HomeActivity extends AppCompatActivity {
 
             if (id == R.id.nav_home) {
                 Toast.makeText(HomeActivity.this, "You are already on Home", Toast.LENGTH_SHORT).show();
-            } else if (id == R.id.nav_maps) {
+            }else if (id == R.id.Recommendations){
+                intent = new Intent(HomeActivity.this, ActivityRecommendationActivity.class);
+            }
+            else if (id == R.id.nav_maps) {
                 intent = new Intent(HomeActivity.this, Maps.class);
             } else if (id == R.id.nav_chats) {
                 intent = new Intent(HomeActivity.this, Chats.class);
@@ -197,7 +200,7 @@ public class HomeActivity extends AppCompatActivity {
                 return result.toString();
             }
         } catch (IOException e) {
-            Log.e("HomeActivity", "Error fetching weather data", e);
+            Log.e("Activity_HomeActivity", "Error fetching weather data", e);
             return null;
         }
     }
@@ -249,7 +252,7 @@ public class HomeActivity extends AppCompatActivity {
                 weatherInfo.setText("Weather data unavailable");
             }
         } catch (JSONException e) {
-            Log.e("HomeActivity", "Error parsing weather data", e);
+            Log.e("Activity_HomeActivity", "Error parsing weather data", e);
             weatherInfo.setText("Error fetching weather");
         }
     }
@@ -281,7 +284,7 @@ public class HomeActivity extends AppCompatActivity {
                 return result.toString();
             }
         } catch (IOException e) {
-            Log.e("HomeActivity", "Error fetching UV Index data", e);
+            Log.e("Activity_HomeActivity", "Error fetching UV Index data", e);
             return null;
         }
     }
@@ -297,7 +300,7 @@ public class HomeActivity extends AppCompatActivity {
                 uvIndexText.setText("UV Index data unavailable");
             }
         } catch (JSONException e) {
-            Log.e("HomeActivity", "Error parsing UV Index data", e);
+            Log.e("Activity_HomeActivity", "Error parsing UV Index data", e);
             uvIndexText.setText("Error fetching UV Index");
         }
     }
@@ -321,7 +324,7 @@ public class HomeActivity extends AppCompatActivity {
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("HomeActivity", "Failed to fetch location", e);
+                    Log.e("Activity_HomeActivity", "Failed to fetch location", e);
                     Toast.makeText(HomeActivity.this, "Location retrieval failed", Toast.LENGTH_SHORT).show();
                 });
     }

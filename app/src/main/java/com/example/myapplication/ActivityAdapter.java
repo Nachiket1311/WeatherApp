@@ -48,4 +48,3 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.ViewHo
         }
     }
 }
-
