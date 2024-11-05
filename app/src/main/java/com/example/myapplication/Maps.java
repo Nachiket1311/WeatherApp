@@ -76,11 +76,11 @@ public class Maps extends AppCompatActivity {
                     Toast.makeText(Maps.this, "Recommendations clicked", Toast.LENGTH_SHORT).show();
                 }
                 else if (id == R.id.nav_maps) {
-                    Intent i2 = new Intent(Maps.this, Maps.class);
-                    startActivity(i2);
-                    Toast.makeText(Maps.this, "Profile clicked", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Maps.this, "You are already in Maps", Toast.LENGTH_SHORT).show();
+
                 } else if (id == R.id.nav_chats) {
-                    Toast.makeText(Maps.this, "Settings clicked", Toast.LENGTH_SHORT).show();
+                    Intent i4 = new Intent(Maps.this,Chats.class);
+                    startActivity(i4);
                 } else if (id == R.id.Logout) {
                     Intent i3 = new Intent(Maps.this, MainActivity.class);
                     startActivity(i3);

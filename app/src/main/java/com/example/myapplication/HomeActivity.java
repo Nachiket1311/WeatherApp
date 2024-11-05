@@ -245,7 +245,7 @@ public class HomeActivity extends AppCompatActivity {
 
                 // Fetch UV Index using the extracted latitude and longitude
                 fetchUVIndex(lat, lon);
-
+                Log.d("weatherstat",weatherStatus);
                 // Set video based on weather condition and cloud percentage
                 setVideoBasedOnWeather(weatherStatus.toLowerCase(), cloudPercentage);
             } else {
@@ -390,13 +390,17 @@ public class HomeActivity extends AppCompatActivity {
             case "clear":
                 // Determine the time of day and set the appropriate video
                 if (hour >= 5 && hour < 12) { // Morning: 5 AM to 11:59 AM
-                    videoResourceId = R.raw.clear_morning; // Ensure this video exists
+                    videoResourceId = R.raw.clear_morning;
+                    Log.d("timely","5 to 12 am");// Ensure this video exists
                 } else if (hour >= 12 && hour < 17) { // Afternoon: 12 PM to 4:59 PM
-                    videoResourceId = R.raw.clear_afternoon; // Ensure this video exists
+                    videoResourceId = R.raw.clear_afternoon;
+                    Log.d("timely","12 to 5 am");// Ensure this video exists
                 } else if (hour >= 17 && hour < 21) { // Evening: 5 PM to 8:59 PM
-                    videoResourceId = R.raw.clear_evening; // Ensure this video exists
+                    videoResourceId = R.raw.clear_evening;
+                    Log.d("timely","5 to 8 pm");// Ensure this video exists
                 } else { // Night: 9 PM to 4:59 AM
-                    videoResourceId = R.raw.clear_night; // Ensure this video exists
+                    videoResourceId = R.raw.clear_night;
+                    Log.d("timely","9 to 5 am");// Ensure this video exists
                 }
                 break;
             default:
